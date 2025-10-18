@@ -20,6 +20,16 @@
                                     {{ $record->value }}</h3>
                                 <p class="text-gray-600">Tanggal: {{ $record->measurement_date }}</p>
                                 <p class="mt-2">Keterangan:{{ $record->notes }}</p>
+
+                                @if ($record->file_path)
+                                    <div class="mt-2">
+                                        <span class="text-sm text-gray-500">File: </span>
+                                        <a href="{{ Storage::url($record->file_path) }}" target="_blank"
+                                            class="text-blue-600 hover:text-blue-800 text-sm">
+                                            📎 {{ basename($record->file_path) }}
+                                        </a>
+                                    </div>
+                                @endif
                                 <span class="mt-2 space-x-2">
                                     <button><a href="{{ route('health-records.edit', $record) }}"
                                             class="!text-yellow-600">Ubah</a></button>
@@ -29,8 +39,9 @@
                                         <button type="submit" class="text-red-600">Hapus</button>
                                     </form>
                             </div>
+                        @endforeach
                     </div>
-                    @endforeach
+
                 </div>
             </div>
         </div>

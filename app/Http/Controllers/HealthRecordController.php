@@ -24,13 +24,26 @@ class HealthRecordController extends Controller
         $request->validate([
             'type' => 'required|string',
             'value' => 'required|string',
-            'measurement_date' => 'required|date'
+            'measurement_date' => 'required|date',
+            'file_upload' => 'nullable|file|max:2048'
         ]);
 
-        Auth::user()->healthRecords()->create($request->all());
+        try {
+            $data = $request->only(['type', 'value', 'measurement_date', 'notes']);
 
-        return redirect()->route('health-records.index')
-            ->with('success', 'Data kesehatan berhasil disimpan!');
+            if ($request->hasFile('file_upload')) {
+                $path = $request->file('file_upload')->store('health_records', 'public');
+                $data['file_path'] = $path;
+            }
+
+            Auth::user()->healthRecords()->create($data);
+
+            return redirect()->route('health-records.index')
+                ->with('success', 'Data rekam medis berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menambah data: ' . $e->getMessage());
+        }
     }
 
     public function edit(HealthRecord $healthRecord)
@@ -43,20 +56,37 @@ class HealthRecordController extends Controller
         $request->validate([
             'type' => 'required|string',
             'value' => 'required|string',
-            'measurement_date' => 'required|date'
+            'measurement_date' => 'required|date',
+            'file_upload' => 'nullable|file|max:2048'
         ]);
 
-        $healthRecord->update($request->all());
+        try {
+            $data = $request->only(['type', 'value', 'measurement_date', 'notes']);
 
-        return redirect()->route('health-records.index')
-            ->with('success', 'Data kesehatan berhasil diperbarui!');
+            if ($request->hasFile('file_upload')) {
+                $path = $request->file('file_upload')->store('health_records', 'public');
+                $data['file_path'] = $path;
+            }
+
+            $healthRecord->update($data);
+
+            return redirect()->route('health-records.index')
+                ->with('success', 'Data rekam medis berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
+        }
     }
 
     public function destroy(HealthRecord $healthRecord)
     {
-        $healthRecord->delete();
-
-        return redirect()->route('health-records.index')
-            ->with('success', 'Data kesehatan berhasil dihapus!');
+        try {
+            $healthRecord->delete();
+            return redirect()->route('health-records.index')
+                ->with('success', 'Data rekam medis berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
     }
 }

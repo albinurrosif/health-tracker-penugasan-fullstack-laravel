@@ -15,12 +15,7 @@ class HealthRecord extends Model
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'type',
-        'value',
-        'measurement_date',
-        'notes',
-    ];
+    protected $fillable = ['type', 'value', 'measurement_date', 'notes', 'file_path'];
 
     /**
      * Get the user that owns the health record.
